@@ -28,21 +28,34 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.handtools.ui.theme.HandtoolsTheme
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.compose.composable
+import androidx.navigation.NavController
 
+@OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             HandtoolsTheme {
-                MenuPrincipal() //Llamamos a la funcion principal
+                val navController = rememberNavController()
+                NavHost(navController = navController, startDestination = "menu") {
+                    composable("menu") { MenuPrincipal(navController) }
+                    composable("crear") { PantallaMenuCrear(navegarA = { route -> navController.navigate(route) }) }
+                    composable("ajustes") { PantallaAjustes() }
+                    composable("acerca_de") { PantallaAcercaDe() }
+                    composable("apoyar") { PantallaApoyar() }
+                }
             }
         }
     }
 }
 
 @Composable
-fun MenuPrincipal() {
+fun MenuPrincipal(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -75,10 +88,10 @@ fun MenuPrincipal() {
                 )
 
             // Botones del menu principal
-            BotonMenu("Crear", onClick = { /* Navegar a la pantalla de crear */})
-            BotonMenu("Ajustes", onClick = { /* Navegar a la pantalla de ajustes */ })
-            BotonMenu("Acerca de", onClick = { /* Navegar a la pantalla acerca de */})
-            BotonMenu("Apoyar al desarrollador", onClick = { /* Navegar a la pagina de donaciones */})
+            BotonMenu("Crear", onClick = { navController.navigate("crear") })
+            BotonMenu("Ajustes", onClick = { navController.navigate("ajustes") })
+            BotonMenu("Acerca de", onClick = { navController.navigate("acerca_de")})
+            BotonMenu("Apoyar al desarrollador", onClick = { navController.navigate("apoyar") })
         }
     }
 }
@@ -106,7 +119,7 @@ fun PantallaMenuCrear(navegarA: (String) -> Unit) {
     ) {
         Text("Selecciona que deseas crear", style = MaterialTheme.typography.headlineMedium)
 
-        BotonMenu("Nota", onClick = { navegarA("nota")})
+        BotonMenu("Notas", onClick = { navegarA("notas")})
         BotonMenu("Cuenta Bultos", onClick = { navegarA("cuenta_bultos")})
         BotonMenu("Cuenta Bultos con Anotaciones", onClick = { navegarA("cuenta_bultos_anotaciones")})
     }
@@ -175,6 +188,7 @@ fun PantallaApoyar() {
 @Composable
 fun MenuPrincipalPreview() {
     HandtoolsTheme {
-        MenuPrincipal()
+        val navController = rememberNavController()
+        MenuPrincipal(navController)
     }
 }
