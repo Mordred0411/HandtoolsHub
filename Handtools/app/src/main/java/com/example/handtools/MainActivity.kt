@@ -42,12 +42,16 @@ class MainActivity : ComponentActivity() {
         setContent {
             HandtoolsTheme {
                 val navController = rememberNavController()
-                NavHost(navController = navController, startDestination = "menu") {
-                    composable("menu") { MenuPrincipal(navController) }
-                    composable("crear") { PantallaMenuCrear(navegarA = { route -> navController.navigate(route) }) }
-                    composable("ajustes") { PantallaAjustes() }
-                    composable("acerca_de") { PantallaAcercaDe() }
-                    composable("apoyar") { PantallaApoyar() }
+                Box(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.background),
+                        contentDescription= "Fondo de pantalla",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                    NavigationGraph(navHostController = navController)
                 }
             }
         }
