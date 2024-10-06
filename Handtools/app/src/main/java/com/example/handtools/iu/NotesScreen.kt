@@ -3,6 +3,8 @@ package com.example.handtools.iu
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -11,25 +13,39 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.handtools.viewmodel.NoteViewModel
 import com.example.handtools.data.Note
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
 
 
 @Composable
 fun NotesScreen(noteViewModel: NoteViewModel = viewModel()) {
     val allNotes by noteViewModel.allNotes.observeAsState(emptyList())
 
+    @OptIn(ExperimentalMaterial3Api::class)
     Scaffold (
         topBar = {
             TopAppBar(
                 title = { Text(text = "Notes")}
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = {
+                val newNote = Note(
+                    title = "New Note",
+                    content = "This is a new note."
+                )
+                noteViewModel.insert(newNote)
+            }) {
+                Icon(Icons.Default.Add, contentDescription = "Add Note")
+            }
         }
-    ) {
-        NotesList(notes = allNotes)
+    ) { paddingValues ->
+        NotesList(notes = allNotes, modifier = Modifier.padding(paddingValues))
     }
 }
 
 @Composable
-fun NotesList(notes: List<Note>) {
+fun NotesList(notes: List<Note>, modifier: Modifier) {
     LazyColumn (
         contentPadding = PaddingValues(horizontal = 16.dp,vertical = 8.dp)
     ) { items(notes) { note ->
@@ -42,10 +58,10 @@ fun NotesList(notes: List<Note>) {
 fun NoteItem(note: Note) {
     Card(
         modifier = Modifier
-            .fillMaxWidth(),
-            .Padding(vertical = 4.dp),
-        elevation = 2.dp
-    ) @androidx.compose.runtime.Composable {
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        elevation = CardDefaults.cardElevation(4.dp)
+    ) {
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
@@ -56,6 +72,7 @@ fun NoteItem(note: Note) {
             Text(
                 text = "Created: ${note.createdAt})",
                 style = MaterialTheme.typography.displaySmall
+            )
         }
     }
 }

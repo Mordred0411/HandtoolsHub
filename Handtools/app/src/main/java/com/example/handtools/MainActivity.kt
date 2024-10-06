@@ -6,7 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -28,13 +26,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.handtools.ui.theme.HandtoolsTheme
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.compose.composable
 import androidx.navigation.NavController
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -114,7 +109,7 @@ fun BotonMenu(texto: String, onClick: () -> Unit) {
 }
 
 @Composable
-fun PantallaMenuCrear(navegarA: (String) -> Unit) {
+fun PantallaMenuCrear(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -123,9 +118,9 @@ fun PantallaMenuCrear(navegarA: (String) -> Unit) {
     ) {
         Text("Selecciona que deseas crear", style = MaterialTheme.typography.headlineMedium)
 
-        BotonMenu("Notas", onClick = { navegarA("notas")})
-        BotonMenu("Cuenta Bultos", onClick = { navegarA("cuenta_bultos")})
-        BotonMenu("Cuenta Bultos con Anotaciones", onClick = { navegarA("cuenta_bultos_anotaciones")})
+        BotonMenu("Notas", onClick = { navController.navigate("notas") })
+        BotonMenu("Cuenta Bultos", onClick = { navController.navigate("cuenta_bultos") })
+        BotonMenu("Cuenta Bultos con Anotaciones", onClick = { navController.navigate("cuenta_bultos_anotaciones") })
     }
 }
 
