@@ -28,12 +28,19 @@ import androidx.compose.ui.unit.sp
 import com.example.handtools.ui.theme.HandtoolsTheme
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavController
+import com.example.handtools.data.NoteRepository
+import com.example.handtools.data.AppDatabase
 
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        val myDatabase = AppDatabase.getDatabase(applicationContext)
+        val noteDao = myDatabase.noteDao()
+        val noteRepository = NoteRepository(noteDao)
+
         setContent {
             HandtoolsTheme {
                 val navController = rememberNavController()
@@ -46,7 +53,7 @@ class MainActivity : ComponentActivity() {
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
                     )
-                    NavigationGraph(navHostController = navController)
+                    NavigationGraph(navHostController = navController, repository = noteRepository)
                 }
             }
         }

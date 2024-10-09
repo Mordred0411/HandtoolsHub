@@ -15,10 +15,16 @@ import com.example.handtools.viewmodel.NoteViewModel
 import com.example.handtools.data.Note
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import com.example.handtools.data.NoteRepository
+import com.example.handtools.viewmodel.NoteViewModelFactory
 
 
 @Composable
-fun NotesScreen(noteViewModel: NoteViewModel = viewModel()) {
+fun NotesScreen(repository: NoteRepository) {
+
+    val noteViewModel: NoteViewModel = viewModel(factory = NoteViewModelFactory(repository))
+
     val allNotes by noteViewModel.allNotes.observeAsState(emptyList())
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -48,10 +54,11 @@ fun NotesScreen(noteViewModel: NoteViewModel = viewModel()) {
 fun NotesList(notes: List<Note>, modifier: Modifier) {
     LazyColumn (
         contentPadding = PaddingValues(horizontal = 16.dp,vertical = 8.dp)
-    ) { items(notes) { note ->
-        NoteItem(note)
-
-    } }
+    ) {
+        items(notes) { note ->
+            NoteItem(note)
+        }
+    }
 }
 
 @Composable
