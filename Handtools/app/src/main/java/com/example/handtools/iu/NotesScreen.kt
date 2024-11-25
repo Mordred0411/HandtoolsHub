@@ -1,11 +1,10 @@
 package com.example.handtools.iu
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
+
+import kotlinx.coroutines.flow.Flow
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
@@ -14,10 +13,8 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.example.handtools.viewmodel.NoteViewModel
 import com.example.handtools.data.Note
 import com.example.handtools.data.NoteRepository
@@ -25,72 +22,64 @@ import com.example.handtools.viewmodel.NoteViewModelFactory
 
 
 @Composable
-fun NotesScreen(repository: NoteRepository) {
+fun NotesScreen(noteViewModel: NoteViewModel) {
+    val allNotes by noteViewModel.allNotes.collectAsState(initial = emptyList())
+    var isEditing by remember { mutableStateOf(false) }
+    var noteToEdit by remember { mutableStateOf<Note?>(null) }
 
-    val noteViewModel: NoteViewModel = viewModel(factory = NoteViewModelFactory(repository))
-    val allNotes by noteViewModel.allNotes.observeAsState(emptyList())
+    // Mostrar el editor si se está creando/editando una nota
+    if (isEditing) {
+        NoteEditorDialog(
+            note = noteToEdit,
+            onSave = { note ->
+                if (note.id == null) {
+                    noteViewModel.insert(note)
+                } else {
+                    noteViewModel.update(note)
+                }
+                isEditing = false
+            },
+            onDismiss = { isEditing = false }
+        )
+    }
 
-    @OptIn(ExperimentalMaterial3Api::class)
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-
-    ) {
-    Scaffold (
-        topBar = {
-            TopAppBar(
-                title = { Text(text = "Notes")}
-            )
-        },
+    Scaffold(
         floatingActionButton = {
             FloatingActionButton(onClick = {
-                val newNote = Note(
-                    title = "New Note",
-                    content = "This is a new note."
-                )
-                noteViewModel.insert(newNote)
+                noteToEdit = null // Crear nueva nota
+                isEditing = true
             }) {
-                    Icon(Icons.Default.Add, contentDescription = "Add Note")
-                }
+                Icon(Icons.Default.Add, contentDescription = "Add Note")
             }
-        ) { paddingValues ->
-            NotesList(notes = allNotes, modifier = Modifier.padding(paddingValues))
         }
+    ) { padding ->
+        NotesList(
+            notes = allNotes,
+            onEdit = { note ->
+                noteToEdit = note
+                isEditing = true
+            },
+            onDelete = { note ->
+                noteViewModel.delete(note)
+            },
+            modifier = Modifier.padding(padding)
+        )
     }
 }
 
 @Composable
-fun NotesList(notes: List<Note>, modifier: Modifier) {
-    LazyColumn (
+fun NotesList(
+    notes: List<Note>,
+    onEdit: (Note) -> Unit,
+    onDelete: (Note) -> Unit,
+    modifier: Modifier
+) {
+    LazyColumn(
         modifier.padding(vertical = 20.dp),
         contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
         items(notes) { note ->
-            NoteItem(note)
-        }
-    }
-}
-
-@Composable
-fun NoteItem(note: Note) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text(text = note.title, style = MaterialTheme.typography.titleMedium)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = note.content, style = MaterialTheme.typography.bodyLarge)
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "Created: ${note.createdAt})",
-                style = MaterialTheme.typography.bodySmall
-            )
+            NoteItem(note, onEdit = onEdit, onDelete = onDelete)
         }
     }
 }

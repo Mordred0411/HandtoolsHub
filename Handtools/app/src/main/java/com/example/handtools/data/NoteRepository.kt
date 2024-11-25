@@ -1,13 +1,13 @@
 package com.example.handtools.data
 
+import kotlinx.coroutines.flow.Flow
+
 class NoteRepository(private val noteDao: NoteDao) {
     suspend fun insert(note: Note){
         noteDao.insert(note)
     }
 
-    suspend fun getAllNotes(): List<Note> {
-        return noteDao.getAllNotes()
-    }
+    fun getAllNotes(): Flow<List<Note>> = noteDao.getAllNotes()
 
     suspend fun update(note: Note){
         noteDao.update(note)
